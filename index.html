@@ -1,0 +1,133 @@
+<!doctype html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <link rel="icon" type="image/png" href="img/favicon16.png" sizes="16x16"/>
+        <link rel="icon" type="image/png" href="img/favicon32.png" sizes="32x32"/>
+        <link rel="icon" type="image/png" href="img/favicon64.png" sizes="64x64"/>
+        <link rel="stylesheet" href="libs/nprogress.css"/>
+        <title>StackOverflow Dashboard</title>
+        <style>
+            html {
+                height: 100%;
+            }
+            body {
+                font-family: sans-serif;
+                margin: 0 5%;
+                position: relative;
+                min-height: 100%;
+                padding-bottom: 2.8125em;
+                box-sizing: border-box;
+            }
+            #header {
+                border-bottom: 1px solid #eee;
+            }
+            #footer {
+                position: absolute;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                border-top: 1px solid #eee;
+                font-size: 0.8125em;
+                padding: 1em 0;
+                text-align: right;
+            }
+            #gauges {
+                text-align: center;
+            }
+            #gauges .legend {
+                font-size: 0.8125em;
+                margin-top: 1em;
+            }
+            #g-group {
+                display: inline-block;
+            }
+            #g1, #g2, #g3, #g4 {
+                width: 300px;
+                height: 200px;
+                display: inline-block;
+                margin: 1em;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="header">
+            <img src="img/logo.png"></img>
+        </div>
+        <div id="gauges">
+            <div id="g-group">
+                <div id="g1"></div>
+                <div id="g2"></div>
+            </div>
+            <div id="g-group">
+                <div id="g3"></div>
+                <div id="g4"></div>
+            </div>
+        </div>
+        <div id="footer">
+            Created by <a href="http://stackoverflow.com/users/853558/lukasz-wiktor" target="_blank">Łukasz Wiktor</a>
+        </div>
+        <script src="libs/raphael-2.1.4.min.js"></script>
+        <script src="libs/justgage.js"></script>
+        <script src="libs/firebase.js"></script>
+        <script src="libs/axios.min.js"></script>
+        <script src="libs/nprogress.js"></script>
+        <script>
+            var g1, g2, g3, g4;
+
+            document.addEventListener("DOMContentLoaded", function(event) {
+                g1 = new JustGage({
+                    id: "g1",
+                    value: 0,
+                    min: 0,
+                    max: 1000,
+                    title: "Questions",
+                    label: "per hour"
+                });
+
+                g2 = new JustGage({
+                    id: "g2",
+                    value: 0,
+                    min: 0,
+                    max: 1000,
+                    title: "Answers",
+                    label: "per hour"
+                });
+
+                g3 = new JustGage({
+                    id: "g3",
+                    value: 0,
+                    min: 0,
+                    max: 4000,
+                    title: "Comments",
+                    label: "per hour"
+                });
+                
+                g4 = new JustGage({
+                    id: "g4",
+                    value: 0,
+                    min: 0,
+                    max: 400,
+                    title: "Users",
+                    label: "per hour"
+                });
+            });
+            
+            NProgress.configure({ 
+                parent: '#gauges',
+                showSpinner: false 
+            });
+            NProgress.start();
+            var firebaseRef = new Firebase("https://sostats.firebaseio.com/");
+            firebaseRef.child("stats/latest").on("value", function(snapshot) {
+                NProgress.done();
+                var stats = snapshot.val();
+                g1.refresh(stats.questions.lastHour);
+                g2.refresh(stats.answers.lastHour);
+                g3.refresh(stats.comments.lastHour);
+                g4.refresh(stats.users.lastHour);
+            });
+        </script>
+    </body>
+</html>

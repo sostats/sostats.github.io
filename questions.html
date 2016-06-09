@@ -1,0 +1,185 @@
+<!doctype html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <link rel="icon" type="image/png" href="img/favicon32.png">
+        <link rel="stylesheet" href="libs/nprogress.css"/>
+
+        <title>StackOverflow Dashboard</title>
+        <style>
+            html {
+                height: 100%;
+            }
+            body {
+                font-family: sans-serif;
+                margin: 0 5%;
+                position: relative;
+                min-height: 100%;
+                padding-bottom: 2.8125em;
+                box-sizing: border-box;
+            }
+            #header {
+                border-bottom: 1px solid #eee;
+            }
+            #footer {
+                position: absolute;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                border-top: 1px solid #eee;
+                font-size: 0.8125em;
+                padding: 1em 0;
+                text-align: right;
+            }
+            #gauges {
+                text-align: center;
+            }
+            #g-group {
+                display: inline-block;
+            }
+            #g1, #g2, #g3, #g4 {
+                width: 300px;
+                height: 200px;
+                display: inline-block;
+                margin: 1em;
+            }
+            
+            #main {
+                width: 100%;
+                min-height: 3px;
+            }
+            
+            .bar {
+              fill: #bcbbbb;
+            }
+
+            .bar:hover {
+              fill: #f48024;
+            }
+            
+            .bar .tooltip {
+                font-size: 12px;
+                opacity: 0;
+            }
+            
+            .bar:hover .tooltip {
+                opacity: 1;
+            }
+
+            .axis {
+              font: 10px sans-serif;
+            }
+
+            .axis path,
+            .axis line {
+              fill: none;
+              stroke: #000;
+              shape-rendering: crispEdges;
+            }
+            
+        </style>
+    </head>
+    <body>
+        <div id="header">
+            <img src="img/logo.png"></img>
+        </div>
+        <div id="main">
+            <div id="questions"></div>
+        </div>
+        <div id="footer">
+            Created by <a href="http://stackoverflow.com/users/853558/lukasz-wiktor" target="_blank">Łukasz Wiktor</a>
+        </div>
+        <script src="libs/d3.min.js" charset="utf-8"></script>
+        <script src="libs/nprogress.js"></script>
+        <script src="libs/firebase.js"></script>
+        <script>
+            NProgress.configure({ 
+                parent: '#main',
+                showSpinner: false 
+            });
+            NProgress.start();
+            var firebaseRef = new Firebase("https://sostats.firebaseio.com/");
+            firebaseRef.child("stats/questions/hourly").limitToLast(24).once("value", function(snapshot) {
+                NProgress.done();
+                var data = []
+                snapshot.forEach(function(child) {
+                    data.push({
+                        ts: new Date(child.key()),
+                        count: child.val().count
+                    })
+                });
+                console.log(data);
+                createBarChart(data);
+            });
+            
+            function createBarChart(data) {
+                var margin = {top: 20, right: 40, bottom: 30, left: 40},
+                    width = 800 - margin.left - margin.right,
+                    height = 400 - margin.top - margin.bottom;
+
+                var x = d3.scale.ordinal()
+                    .rangeRoundBands([0, width], 0.1)
+                    .domain(data.map(function(d) { return d.ts; }));
+
+                var y = d3.scale.linear()
+                    .range([height, 0])
+                    .domain([0, Math.ceil(d3.max(data, function(d) { return d.count; })/100) * 100]);
+
+                var xAxis = d3.svg.axis()
+                    .scale(x)
+                    .orient("bottom")
+                    .tickFormat(d3.time.format("%H:%M"));
+
+                var yAxis = d3.svg.axis()
+                    .scale(y)
+                    .orient("left")
+                    .ticks(10);
+
+                var svg = d3.select("body").append("svg")
+                    .attr("width", width + margin.left + margin.right)
+                    .attr("height", height + margin.top + margin.bottom)
+                  .append("g")
+                    .attr("transform", 
+                          "translate(" + margin.left + "," + margin.top + ")");
+                
+                var bars = svg.selectAll(".bar").data(data).enter()
+                        .append("g")
+                        .attr("class", "bar")
+                
+                bars.append("rect")
+                        .attr("x", function(d) { return x(d.ts); })
+                        .attr("width", x.rangeBand())
+                        .attr("y", height)
+                        .attr("height", 0)
+                        .transition().duration(300)
+                        .attr("y", function(d) { return y(d.count); })
+                        .attr("height", function(d) { return height - y(d.count); })
+                            
+                  
+                  bars.append("text")
+                    .attr("class", "tooltip")
+                    .attr("x", function(d) { return x(d.ts) + x.rangeBand()/2; })
+                    .attr("y", function(d) { return y(d.count)})
+                    .attr("dy", "-2px")
+                    .style("text-anchor", "middle")
+                    .text(function(d) { return d.count });
+                
+                svg.append("g")
+                    .attr("class", "x axis")
+                    .attr("transform", "translate(0," + height + ")")
+                    .call(xAxis);
+
+                svg.append("g")
+                    .attr("class", "y axis")
+                    .call(yAxis)
+                  .append("text")
+                    .attr("transform", "rotate(-90)")
+                    .attr("y", 6)
+                    .attr("dy", ".71em")
+                    .style("text-anchor", "end")
+                    .text("Questions");
+            }
+        </script>
+    </body>
+</html>
