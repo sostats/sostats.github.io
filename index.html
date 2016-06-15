@@ -33,6 +33,27 @@
                 padding: 1em 0;
                 text-align: right;
             }
+            #totals {
+                text-align: center;
+            }
+            #totals .panel h3 {
+                color: #999;
+            }
+            #totals .panel-group {
+                display: inline-block;
+            }
+            #totals .panel {
+                display: inline-block;
+                width: 300px;
+                height: 120px;
+                background-color: #fafafb;
+                border: 1px solid #e0e0e0;
+                margin: 1em;
+            }
+            .total-value {
+                font-size: 1.875em;
+                font-weight: bold;
+            }
             #gauges {
                 text-align: center;
             }
@@ -40,7 +61,7 @@
                 font-size: 0.8125em;
                 margin-top: 1em;
             }
-            #g-group {
+            .g-group {
                 display: inline-block;
             }
             #g1, #g2, #g3, #g4 {
@@ -55,14 +76,40 @@
         <div id="header">
             <img src="img/logo.png"></img>
         </div>
-        <div id="gauges">
-            <div id="g-group">
-                <div id="g1"></div>
-                <div id="g2"></div>
+        <div id="main">
+            <h2>Total</h2>
+            <div id="totals">
+                <div class="panel-group">
+                    <div class="panel">
+                        <h3>Questions</h3>
+                        <div id="total-questions" class="total-value">0</div>
+                    </div>
+                    <div class="panel">
+                        <h3>Answers</h3>
+                        <div id="total-answers" class="total-value">0</div>
+                    </div>
+                </div>
+                <div class="panel-group">
+                    <div class="panel">
+                        <h3>Comments</h3>
+                        <div id="total-comments" class="total-value">0</div>
+                    </div>
+                    <div class="panel">
+                        <h3>Users</h3>
+                        <div id="total-users" class="total-value">0</div>
+                    </div>
+                </div>
             </div>
-            <div id="g-group">
-                <div id="g3"></div>
-                <div id="g4"></div>
+            <h2>Last Hour</h2>
+            <div id="gauges">
+                <div class="g-group">
+                    <div id="g1"></div>
+                    <div id="g2"></div>
+                </div>
+                <div class="g-group">
+                    <div id="g3"></div>
+                    <div id="g4"></div>
+                </div>
             </div>
         </div>
         <div id="footer">
@@ -71,12 +118,17 @@
         <script src="libs/raphael-2.1.4.min.js"></script>
         <script src="libs/justgage.js"></script>
         <script src="libs/firebase.js"></script>
-        <script src="libs/axios.min.js"></script>
         <script src="libs/nprogress.js"></script>
         <script>
+            var questionsTotal, answersTotal, commentsTotal, usersTotal;
             var g1, g2, g3, g4;
 
             document.addEventListener("DOMContentLoaded", function(event) {
+                questionsTotal = document.getElementById("total-questions");
+                answersTotal = document.getElementById("total-answers");
+                commentsTotal = document.getElementById("total-comments");
+                usersTotal = document.getElementById("total-users");
+                
                 g1 = new JustGage({
                     id: "g1",
                     value: 0,
@@ -115,7 +167,7 @@
             });
             
             NProgress.configure({ 
-                parent: '#gauges',
+                parent: '#main',
                 showSpinner: false 
             });
             NProgress.start();
@@ -123,6 +175,10 @@
             firebaseRef.child("stats/latest").on("value", function(snapshot) {
                 NProgress.done();
                 var stats = snapshot.val();
+                questionsTotal.innerHTML = stats.questions.total;
+                answersTotal.innerHTML = stats.answers.total;
+                commentsTotal.innerHTML = stats.comments.total;
+                usersTotal.innerHTML = stats.users.total;
                 g1.refresh(stats.questions.lastHour);
                 g2.refresh(stats.answers.lastHour);
                 g3.refresh(stats.comments.lastHour);
