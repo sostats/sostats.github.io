@@ -45,7 +45,7 @@
             #totals .panel {
                 display: inline-block;
                 width: 300px;
-                height: 120px;
+                height: 115px;
                 background-color: #fafafb;
                 border: 1px solid #e0e0e0;
                 margin: 1em;
@@ -166,6 +166,10 @@
                 });
             });
             
+            function formatNumber(n) {
+                return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+            }
+            
             NProgress.configure({ 
                 parent: '#main',
                 showSpinner: false 
@@ -175,10 +179,10 @@
             firebaseRef.child("stats/latest").on("value", function(snapshot) {
                 NProgress.done();
                 var stats = snapshot.val();
-                questionsTotal.innerHTML = stats.questions.total;
-                answersTotal.innerHTML = stats.answers.total;
-                commentsTotal.innerHTML = stats.comments.total;
-                usersTotal.innerHTML = stats.users.total;
+                questionsTotal.innerHTML = formatNumber(stats.questions.total);
+                answersTotal.innerHTML = formatNumber(stats.answers.total);
+                commentsTotal.innerHTML = formatNumber(stats.comments.total);
+                usersTotal.innerHTML = formatNumber(stats.users.total);
                 g1.refresh(stats.questions.lastHour);
                 g2.refresh(stats.answers.lastHour);
                 g3.refresh(stats.comments.lastHour);
