@@ -68,13 +68,17 @@
             }
 
             .axis {
-              font: 10px sans-serif;
+              font-family: "Open Sans", verdana, arial, sans-serif;
+              font-size: 12px;
+              font-weight: 200;
+              fill: #444;
             }
 
             .axis path,
             .axis line {
               fill: none;
-              stroke: #000;
+              stroke: #444;
+              stroke-width: 1px;
               shape-rendering: crispEdges;
             }
             
@@ -118,18 +122,25 @@
                     width = 800 - margin.left - margin.right,
                     height = 400 - margin.top - margin.bottom;
 
+                var lastTs = new Date(data[data.length-1].ts);
+                lastTs.setHours(lastTs.getHours() + 1);
                 var x = d3.scale.ordinal()
-                    .rangeRoundBands([0, width], 0.1)
-                    .domain(data.map(function(d) { return d.ts; }));
+                    .rangePoints([0, width])
+                    .domain(data.map(function(d) { return d.ts; }).concat(lastTs));
 
                 var y = d3.scale.linear()
                     .range([height, 0])
                     .domain([0, Math.ceil(d3.max(data, function(d) { return d.count; })/100) * 100]);
 
+                var timeFormat = d3.time.format("%H:%M");
                 var xAxis = d3.svg.axis()
                     .scale(x)
                     .orient("bottom")
-                    .tickFormat(d3.time.format("%H:%M"));
+                    .tickFormat(function(d,i) {
+                        if (i%2 == 0) {
+                            return timeFormat(d);
+                        }
+                    })
 
                 var yAxis = d3.svg.axis()
                     .scale(y)
@@ -147,9 +158,11 @@
                         .append("g")
                         .attr("class", "bar")
                 
+                var barWidth = width/24 - 1;
+                
                 bars.append("rect")
                         .attr("x", function(d) { return x(d.ts); })
-                        .attr("width", x.rangeBand())
+                        .attr("width", barWidth)
                         .attr("y", height)
                         .attr("height", 0)
                         .transition().duration(300)
@@ -159,7 +172,7 @@
                   
                   bars.append("text")
                     .attr("class", "tooltip")
-                    .attr("x", function(d) { return x(d.ts) + x.rangeBand()/2; })
+                    .attr("x", function(d) { return x(d.ts) + barWidth/2; })
                     .attr("y", function(d) { return y(d.count)})
                     .attr("dy", "-2px")
                     .style("text-anchor", "middle")
