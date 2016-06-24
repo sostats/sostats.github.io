@@ -6,7 +6,7 @@
         <link rel="icon" type="image/png" href="img/favicon32.png">
         <link rel="stylesheet" href="libs/nprogress.css"/>
 
-        <title>StackOverflow Dashboard</title>
+        <title>StackOverflow Dashboard - Last 24 hours</title>
         <style>
             html {
                 height: 100%;
@@ -50,6 +50,14 @@
                 min-height: 3px;
             }
             
+            .charts {
+                text-align: center;
+            }
+            
+            .chart {
+                display: inline-block;
+            }
+            
             .bar {
               fill: #bcbbbb;
             }
@@ -89,7 +97,12 @@
             <img src="img/logo.png"></img>
         </div>
         <div id="main">
-            <div id="questions"></div>
+            <div class="charts">
+                <div id="questions" class="chart"></div>
+                <div id="answers" class="chart"></div>
+                <div id="comments" class="chart"></div>
+                <div id="users" class="chart"></div>
+            </div>
         </div>
         <div id="footer">
             Created by <a href="http://stackoverflow.com/users/853558/lukasz-wiktor" target="_blank">Łukasz Wiktor</a>
@@ -103,24 +116,48 @@
                 showSpinner: false 
             });
             NProgress.start();
+            var reqCount = 4;
             var firebaseRef = new Firebase("https://sostats.firebaseio.com/");
             firebaseRef.child("stats/questions/hourly").limitToLast(24).once("value", function(snapshot) {
-                NProgress.done();
-                var data = []
+                if (!--reqCount) {
+                    NProgress.done();
+                }
+                createBarChart("questions", transformData(snapshot));
+            });
+            firebaseRef.child("stats/answers/hourly").limitToLast(24).once("value", function(snapshot) {
+                if (!--reqCount) {
+                    NProgress.done();
+                }
+                createBarChart("answers", transformData(snapshot));
+            });
+            firebaseRef.child("stats/comments/hourly").limitToLast(24).once("value", function(snapshot) {
+                if (!--reqCount) {
+                    NProgress.done();
+                }
+                createBarChart("comments", transformData(snapshot));
+            });
+            firebaseRef.child("stats/users/hourly").limitToLast(24).once("value", function(snapshot) {
+                if (!--reqCount) {
+                    NProgress.done();
+                }
+                createBarChart("users", transformData(snapshot));
+            });
+            
+            function transformData(snapshot) {
+                var data = [];
                 snapshot.forEach(function(child) {
                     data.push({
                         ts: new Date(child.key()),
                         count: child.val().count
                     })
                 });
-                console.log(data);
-                createBarChart(data);
-            });
+                return data;
+            }
             
-            function createBarChart(data) {
+            function createBarChart(containerId, data) {
                 var margin = {top: 20, right: 40, bottom: 30, left: 40},
-                    width = 800 - margin.left - margin.right,
-                    height = 400 - margin.top - margin.bottom;
+                    width = 600 - margin.left - margin.right,
+                    height = 300 - margin.top - margin.bottom;
 
                 var lastTs = new Date(data[data.length-1].ts);
                 lastTs.setHours(lastTs.getHours() + 1);
@@ -147,7 +184,7 @@
                     .orient("left")
                     .ticks(10);
 
-                var svg = d3.select("body").append("svg")
+                var svg = d3.select("#" + containerId).append("svg")
                     .attr("width", width + margin.left + margin.right)
                     .attr("height", height + margin.top + margin.bottom)
                   .append("g")
@@ -191,7 +228,7 @@
                     .attr("y", 6)
                     .attr("dy", ".71em")
                     .style("text-anchor", "end")
-                    .text("Questions");
+                    .text(containerId);
             }
         </script>
         <script>
