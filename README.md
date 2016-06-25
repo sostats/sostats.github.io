@@ -11,4 +11,10 @@ Live metrics (updated every minute):
 - number of questions last hour
 - number of answers last hour
 - number of comments last hour
-- number of users last hour
+- number of new users last hour
+
+Charts:
+- questions per hour - last 24h
+- answers per hour - last 24h
+- comments per hour - last 24h
+- new users per hour - last 24h
