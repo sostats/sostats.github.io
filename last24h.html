@@ -62,7 +62,7 @@
               fill: #bcbbbb;
             }
 
-            .bar:hover {
+            .bar.hover {
               fill: #f48024;
             }
             
@@ -71,7 +71,7 @@
                 opacity: 0;
             }
             
-            .bar:hover .tooltip {
+            .bar.hover .tooltip {
                 opacity: 1;
             }
 
@@ -111,6 +111,7 @@
         <script src="libs/nprogress.js"></script>
         <script src="libs/firebase.js"></script>
         <script>
+            var q, a, c, u;
             NProgress.configure({ 
                 parent: '#main',
                 showSpinner: false 
@@ -122,25 +123,25 @@
                 if (!--reqCount) {
                     NProgress.done();
                 }
-                createBarChart("questions", transformData(snapshot));
+                q = createBarChart("questions", transformData(snapshot));
             });
             firebaseRef.child("stats/answers/hourly").limitToLast(24).once("value", function(snapshot) {
                 if (!--reqCount) {
                     NProgress.done();
                 }
-                createBarChart("answers", transformData(snapshot));
+                a = createBarChart("answers", transformData(snapshot));
             });
             firebaseRef.child("stats/comments/hourly").limitToLast(24).once("value", function(snapshot) {
                 if (!--reqCount) {
                     NProgress.done();
                 }
-                createBarChart("comments", transformData(snapshot));
+                c = createBarChart("comments", transformData(snapshot));
             });
             firebaseRef.child("stats/users/hourly").limitToLast(24).once("value", function(snapshot) {
                 if (!--reqCount) {
                     NProgress.done();
                 }
-                createBarChart("users", transformData(snapshot));
+                u = createBarChart("users", transformData(snapshot));
             });
             
             function transformData(snapshot) {
@@ -194,6 +195,18 @@
                 var bars = svg.selectAll(".bar").data(data).enter()
                         .append("g")
                         .attr("class", "bar")
+                        .on("mouseover", function(d, i) {
+                            q.hover(d, true);
+                            a.hover(d, true);
+                            c.hover(d, true);
+                            u.hover(d, true);
+                        })
+                        .on("mouseout", function(d, i) {
+                            q.hover(d, false);
+                            a.hover(d, false);
+                            c.hover(d, false);
+                            u.hover(d, false);
+                        })
                 
                 var barWidth = width/24 - 1;
                 
@@ -229,6 +242,14 @@
                     .attr("dy", ".71em")
                     .style("text-anchor", "end")
                     .text(containerId);
+                console.log(svg)
+                return {
+                    hover: function(d, value) {
+                        bars
+                            .filter(function(_d) { return _d.ts.getTime() === d.ts.getTime(); })
+                            .classed("hover", value)
+                    }
+                };
             }
         </script>
         <script>
