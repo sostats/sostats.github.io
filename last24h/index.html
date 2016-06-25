@@ -22,6 +22,28 @@
             #header {
                 border-bottom: 1px solid #eee;
             }
+            #header img {
+                vertical-align: middle;
+            }
+            .tabs {
+                display: inline-block;
+                vertical-align: middle;
+                line-height: 50px
+            }
+            .tabs a {
+                display: inline-block;
+                line-height; inherit;
+                color: #848d95;
+                text-decoration: none;
+                padding: 0 10px;
+            }
+            .tabs a.current {
+                color: #f48024;
+                background-color: #eee;
+            }
+            .tabs a:hover {
+                background-color: #eee;
+            }
             #footer {
                 position: absolute;
                 left: 0;
@@ -95,6 +117,10 @@
     <body>
         <div id="header">
             <img src="../img/logo.png"></img>
+            <div class="tabs">
+                <a href="/">Dashboard</a>
+                <a href="/last24h" class="current">Last 24h</a>
+            </div>
         </div>
         <div id="main">
             <div class="charts">
@@ -159,7 +185,6 @@
                 var margin = {top: 20, right: 40, bottom: 30, left: 40},
                     width = 600 - margin.left - margin.right,
                     height = 300 - margin.top - margin.bottom;
-
                 var lastTs = new Date(data[data.length-1].ts);
                 lastTs.setHours(lastTs.getHours() + 1);
                 var x = d3.scale.ordinal()
@@ -206,8 +231,7 @@
                             a.hover(d, false);
                             c.hover(d, false);
                             u.hover(d, false);
-                        })
-                
+                        });
                 var barWidth = width/24 - 1;
                 
                 bars.append("rect")
@@ -242,7 +266,6 @@
                     .attr("dy", ".71em")
                     .style("text-anchor", "end")
                     .text(containerId);
-                console.log(svg)
                 return {
                     hover: function(d, value) {
                         bars

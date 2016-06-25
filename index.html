@@ -23,6 +23,28 @@
             #header {
                 border-bottom: 1px solid #eee;
             }
+            #header img {
+                vertical-align: middle;
+            }
+            .tabs {
+                display: inline-block;
+                vertical-align: middle;
+                line-height: 50px
+            }
+            .tabs a {
+                display: inline-block;
+                line-height; inherit;
+                color: #848d95;
+                text-decoration: none;
+                padding: 0 10px;
+            }
+            .tabs a.current {
+                color: #f48024;
+                background-color: #eee;
+            }
+            .tabs a:hover {
+                background-color: #eee;
+            }
             #footer {
                 position: absolute;
                 left: 0;
@@ -75,6 +97,10 @@
     <body>
         <div id="header">
             <img src="img/logo.png"></img>
+            <div class="tabs">
+                <a href="/" class="current">Dashboard</a>
+                <a href="/last24h">Last 24h</a>
+            </div>
         </div>
         <div id="main">
             <h2>Total</h2>
