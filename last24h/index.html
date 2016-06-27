@@ -80,6 +80,12 @@
                 display: inline-block;
             }
             
+            .chart .title {
+                font-size: 18px;
+                font-weight: bold;
+                fill: #999;
+            }
+            
             .bar {
               fill: #bcbbbb;
             }
@@ -124,10 +130,14 @@
         </div>
         <div id="main">
             <div class="charts">
-                <div id="questions" class="chart"></div>
-                <div id="answers" class="chart"></div>
-                <div id="comments" class="chart"></div>
-                <div id="users" class="chart"></div>
+                <div id="questions" class="chart">
+                </div>
+                <div id="answers" class="chart">
+                </div>
+                <div id="comments" class="chart">
+                </div>
+                <div id="users" class="chart">
+                </div>
             </div>
         </div>
         <div id="footer">
@@ -149,25 +159,41 @@
                 if (!--reqCount) {
                     NProgress.done();
                 }
-                q = createBarChart("questions", transformData(snapshot));
+                q = createBarChart({
+                    containerId: "questions",
+                    data: transformData(snapshot),
+                    title: "Questions"
+                });
             });
             firebaseRef.child("stats/answers/hourly").limitToLast(24).once("value", function(snapshot) {
                 if (!--reqCount) {
                     NProgress.done();
                 }
-                a = createBarChart("answers", transformData(snapshot));
+                a = createBarChart({
+                    containerId: "answers",
+                    data: transformData(snapshot),
+                    title: "Answers"
+                });
             });
             firebaseRef.child("stats/comments/hourly").limitToLast(24).once("value", function(snapshot) {
                 if (!--reqCount) {
                     NProgress.done();
                 }
-                c = createBarChart("comments", transformData(snapshot));
+                c = createBarChart({
+                    containerId: "comments",
+                    data: transformData(snapshot),
+                    title: "Comments"
+                });
             });
             firebaseRef.child("stats/users/hourly").limitToLast(24).once("value", function(snapshot) {
                 if (!--reqCount) {
                     NProgress.done();
                 }
-                u = createBarChart("users", transformData(snapshot));
+                u = createBarChart({
+                    containerId: "users",
+                    data: transformData(snapshot),
+                    title: "Users"
+                });
             });
             
             function transformData(snapshot) {
@@ -181,10 +207,11 @@
                 return data;
             }
             
-            function createBarChart(containerId, data) {
-                var margin = {top: 20, right: 40, bottom: 30, left: 40},
+            function createBarChart(options) {
+                var margin = {top: 60, right: 40, bottom: 30, left: 40},
                     width = 600 - margin.left - margin.right,
                     height = 300 - margin.top - margin.bottom;
+                var data = options.data;
                 var lastTs = new Date(data[data.length-1].ts);
                 lastTs.setHours(lastTs.getHours() + 1);
                 var x = d3.scale.ordinal()
@@ -210,7 +237,7 @@
                     .orient("left")
                     .ticks(10);
 
-                var svg = d3.select("#" + containerId).append("svg")
+                var svg = d3.select("#" + options.containerId).append("svg")
                     .attr("width", width + margin.left + margin.right)
                     .attr("height", height + margin.top + margin.bottom)
                   .append("g")
@@ -260,12 +287,13 @@
                 svg.append("g")
                     .attr("class", "y axis")
                     .call(yAxis)
-                  .append("text")
-                    .attr("transform", "rotate(-90)")
-                    .attr("y", 6)
-                    .attr("dy", ".71em")
-                    .style("text-anchor", "end")
-                    .text(containerId);
+                
+                svg.append("text")
+                    .attr("class", "title")
+                    .attr("x", width/2)
+                    .attr("y", -30)
+                    .style("text-anchor", "middle")
+                    .text(options.title);
                 return {
                     hover: function(d, value) {
                         bars
