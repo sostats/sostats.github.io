@@ -219,7 +219,7 @@
                     outerWidth /= 2;
                 }
                 var outerHeight = Math.max(outerWidth/2, 200);
-                var margin = {top: 60, right: 40, bottom: 30, left: 40},
+                var margin = {top: 60, right: 20, bottom: 30, left: 40},
                     width = outerWidth - margin.left - margin.right,
                     height = outerHeight - margin.top - margin.bottom;
                 var barWidth = width/data.length - 1;
@@ -249,6 +249,7 @@
                     .orient("left")
                     .ticks(8);
 
+                d3.select("#" + options.containerId + ">svg").remove()
                 var svg = d3.select("#" + options.containerId).append("svg")
                     .attr("width", outerWidth)
                     .attr("height", outerHeight)
@@ -306,6 +307,7 @@
                     .style("text-anchor", "middle")
                     .text(options.title);
                 return {
+                    options: options,
                     hover: function(d, value) {
                         bars
                             .filter(function(_d) { return _d.ts.getTime() === d.ts.getTime(); })
@@ -313,6 +315,13 @@
                     }
                 };
             }
+            
+            window.addEventListener('resize', function() {
+                q = createBarChart(q.options);
+                a = createBarChart(a.options);
+                c = createBarChart(c.options);
+                u = createBarChart(u.options);
+            })
         </script>
         <script>
             (function(){
