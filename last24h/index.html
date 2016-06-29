@@ -316,11 +316,16 @@
                 };
             }
             
+            var windowWidth = window.innerWidth;
             window.addEventListener('resize', function() {
+                if (windowWidth === window.innerWidth) {
+                    return "skip resize";
+                }
                 q = createBarChart(q.options);
                 a = createBarChart(a.options);
                 c = createBarChart(c.options);
                 u = createBarChart(u.options);
+                windowWidth = window.innerWidth;
             })
         </script>
         <script>
