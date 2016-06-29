@@ -19,6 +19,11 @@
                 padding-bottom: 2.8125em;
                 box-sizing: border-box;
             }
+            @media (max-width: 600px) {
+              .body {
+                margin: 0;
+              }
+            }
             #header {
                 border-bottom: 1px solid #eee;
             }
@@ -208,10 +213,18 @@
             }
             
             function createBarChart(options) {
-                var margin = {top: 60, right: 40, bottom: 30, left: 40},
-                    width = 600 - margin.left - margin.right,
-                    height = 300 - margin.top - margin.bottom;
                 var data = options.data;
+                var outerWidth = document.body.offsetWidth - 20; // posible scroll
+                if (outerWidth > 800) {
+                    outerWidth /= 2;
+                }
+                var outerHeight = outerWidth/2;
+                var margin = {top: 60, right: 40, bottom: 30, left: 40},
+                    width = outerWidth - margin.left - margin.right,
+                    height = outerHeight - margin.top - margin.bottom;
+                var barWidth = width/data.length - 1;
+                var xTickGap = Math.ceil(32/barWidth);
+                console.log("barWidth: " + barWidth +", xTickGap: " + xTickGap)
                 var lastTs = new Date(data[data.length-1].ts);
                 lastTs.setHours(lastTs.getHours() + 1);
                 var x = d3.scale.ordinal()
@@ -227,7 +240,7 @@
                     .scale(x)
                     .orient("bottom")
                     .tickFormat(function(d,i) {
-                        if (i%2 == 0) {
+                        if (i%xTickGap == 0) {
                             return timeFormat(d);
                         }
                     })
@@ -238,8 +251,8 @@
                     .ticks(10);
 
                 var svg = d3.select("#" + options.containerId).append("svg")
-                    .attr("width", width + margin.left + margin.right)
-                    .attr("height", height + margin.top + margin.bottom)
+                    .attr("width", outerWidth)
+                    .attr("height", outerHeight)
                   .append("g")
                     .attr("transform", 
                           "translate(" + margin.left + "," + margin.top + ")");
@@ -259,7 +272,6 @@
                             c.hover(d, false);
                             u.hover(d, false);
                         });
-                var barWidth = width/24 - 1;
                 
                 bars.append("rect")
                         .attr("x", function(d) { return x(d.ts); })
