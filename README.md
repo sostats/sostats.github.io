@@ -18,3 +18,7 @@ Charts:
 - answers per hour - last 24h
 - comments per hour - last 24h
 - new users per hour - last 24h
+- questions per day - last 30 days
+- answers per day - last 30 days
+- comments per day - last 30 days
+- new users per day - last 30 days

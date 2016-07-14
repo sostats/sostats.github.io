@@ -6,7 +6,7 @@
         <link rel="icon" type="image/png" href="../img/favicon32.png">
         <link rel="stylesheet" href="../libs/nprogress.css"/>
 
-        <title>StackOverflow Stats - Last 24 hours</title>
+        <title>StackOverflow Stats - Last 30 days</title>
         <style>
             html {
                 height: 100%;
@@ -130,8 +130,8 @@
             <img src="../img/logo.png"></img>
             <div class="tabs">
                 <a href="/">Dashboard</a>
-                <a href="/last24h" class="current">Last 24h</a>
-                <a href="/last30days">Last 30 days</a>
+                <a href="/last24h">Last 24h</a>
+                <a href="/last30days" class="current">Last 30 days</a>
             </div>
         </div>
         <div id="main">
@@ -161,7 +161,7 @@
             NProgress.start();
             var reqCount = 4;
             var firebaseRef = new Firebase("https://sostats.firebaseio.com/");
-            firebaseRef.child("stats/questions/hourly").limitToLast(24).once("value", function(snapshot) {
+            firebaseRef.child("stats/questions/daily").limitToLast(30).once("value", function(snapshot) {
                 if (!--reqCount) {
                     NProgress.done();
                 }
@@ -171,7 +171,7 @@
                     title: "Questions"
                 });
             });
-            firebaseRef.child("stats/answers/hourly").limitToLast(24).once("value", function(snapshot) {
+            firebaseRef.child("stats/answers/daily").limitToLast(30).once("value", function(snapshot) {
                 if (!--reqCount) {
                     NProgress.done();
                 }
@@ -181,7 +181,7 @@
                     title: "Answers"
                 });
             });
-            firebaseRef.child("stats/comments/hourly").limitToLast(24).once("value", function(snapshot) {
+            firebaseRef.child("stats/comments/daily").limitToLast(30).once("value", function(snapshot) {
                 if (!--reqCount) {
                     NProgress.done();
                 }
@@ -191,7 +191,7 @@
                     title: "Comments"
                 });
             });
-            firebaseRef.child("stats/users/hourly").limitToLast(24).once("value", function(snapshot) {
+            firebaseRef.child("stats/users/daily").limitToLast(30).once("value", function(snapshot) {
                 if (!--reqCount) {
                     NProgress.done();
                 }
@@ -220,7 +220,7 @@
                     outerWidth /= 2;
                 }
                 var outerHeight = Math.max(outerWidth/2, 200);
-                var margin = {top: 60, right: 20, bottom: 30, left: 40},
+                var margin = {top: 60, right: 20, bottom: 30, left: 50},
                     width = outerWidth - margin.left - margin.right,
                     height = outerHeight - margin.top - margin.bottom;
                 var barWidth = width/data.length - 1;
@@ -235,7 +235,7 @@
                     .range([height, 0])
                     .domain([0, Math.ceil(d3.max(data, function(d) { return d.count; })/100) * 100]);
 
-                var timeFormat = d3.time.format("%H:%M");
+                var timeFormat = d3.time.format("%b %e");
                 var xAxis = d3.svg.axis()
                     .scale(x)
                     .orient("bottom")
