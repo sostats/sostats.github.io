@@ -99,13 +99,9 @@
               fill: #f48024;
             }
             
-            .bar .tooltip {
+            .tooltip {
                 font-size: 12px;
-                opacity: 0;
-            }
-            
-            .bar.hover .tooltip {
-                opacity: 1;
+                fill: #eee;
             }
 
             .axis {
@@ -236,7 +232,7 @@
                     .domain([0, Math.ceil(d3.max(data, function(d) { return d.count; })/100) * 100]);
 
                 var timeFormat = d3.time.format("%b %e");
-                var xAxis = d3.svg.axis()
+                                var xAxis = d3.svg.axis()
                     .scale(x)
                     .orient("bottom")
                     .tickFormat(function(d,i) {
@@ -259,9 +255,18 @@
                           "translate(" + margin.left + "," + margin.top + ")");
                 
                 var bars = svg.selectAll(".bar").data(data).enter()
-                        .append("g")
-                        .attr("class", "bar")
-                        .on("mouseover", function(d, i) {
+                        .append("rect")
+                        
+                bars.attr("class", "bar")
+                        .attr("x", function(d) { return x(d.ts); })
+                        .attr("width", barWidth)
+                        .attr("y", height)
+                        .attr("height", 0)
+                        .transition().duration(300)
+                        .attr("y", function(d) { return y(d.count); })
+                        .attr("height", function(d) { return height - y(d.count); })
+                
+                bars.on("mouseover", function(d, i) {
                             q.hover(d, true);
                             a.hover(d, true);
                             c.hover(d, true);
@@ -273,24 +278,6 @@
                             c.hover(d, false);
                             u.hover(d, false);
                         });
-                
-                bars.append("rect")
-                        .attr("x", function(d) { return x(d.ts); })
-                        .attr("width", barWidth)
-                        .attr("y", height)
-                        .attr("height", 0)
-                        .transition().duration(300)
-                        .attr("y", function(d) { return y(d.count); })
-                        .attr("height", function(d) { return height - y(d.count); })
-                            
-                  
-                  bars.append("text")
-                    .attr("class", "tooltip")
-                    .attr("x", function(d) { return x(d.ts) + barWidth/2; })
-                    .attr("y", function(d) { return y(d.count)})
-                    .attr("dy", "-2px")
-                    .style("text-anchor", "middle")
-                    .text(function(d) { return d.count });
                 
                 svg.append("g")
                     .attr("class", "x axis")
@@ -307,12 +294,38 @@
                     .attr("y", -30)
                     .style("text-anchor", "middle")
                     .text(options.title);
+                    
+                var tooltip = svg.append("g")	
+                    .attr("class", "tooltip")				
+                    .style("opacity", 0);
+                var tooltipRect = tooltip.append("rect")
+                    .attr("width", 40)
+                    .attr("height", 20)
+                tooltip.append("rect")
+                    .attr("width", 8)
+                    .attr("height", 8)
+                    .attr("x", 16)
+                    .attr("y", 16)
+                    .attr("transform", "rotate(45 20 20)")
+                var tooltipText = tooltip.append("text")
+                    .attr("x", 20)
+                    .attr("y", 10)
+                    .attr("fill", "#000")
+                    .attr("text-anchor", "middle")
+                    .attr("dominant-baseline", "central");
+                
                 return {
                     options: options,
                     hover: function(d, value) {
-                        bars
+                        var bar = bars
                             .filter(function(_d) { return _d.ts.getTime() === d.ts.getTime(); })
-                            .classed("hover", value)
+                            .classed("hover", value);
+                        var tx = bar.attr("x") - (tooltipRect.attr("width") - bar.attr("width"))/2;
+                        var ty = (bar.attr("y") - tooltipRect.attr("height") - 5);
+                        tooltip	
+                            .style("opacity", value ? 1 : 0)
+                            .attr("transform",  "translate(" + tx + "," + ty + ")");
+                        tooltipText.text(bar.datum().count);
                     }
                 };
             }
