@@ -92,6 +92,14 @@
                 display: inline-block;
                 margin: 1em;
             }
+            #time-range {
+                color: #e0e0e0;
+                font-weight: normal;
+                cursor: default;
+            }
+            #time-range:hover {
+                color: #999;
+            }
         </style>
     </head>
     <body>
@@ -127,7 +135,7 @@
                     </div>
                 </div>
             </div>
-            <h2>Last Hour</h2>
+            <h2>Last Hour <span id="time-range"></span></h2>
             <div id="gauges">
                 <div class="g-group">
                     <div id="g1"></div>
@@ -149,13 +157,15 @@
         <script>
             var questionsTotal, answersTotal, commentsTotal, usersTotal;
             var g1, g2, g3, g4;
+            var timeRange;
 
             document.addEventListener("DOMContentLoaded", function(event) {
                 questionsTotal = document.getElementById("total-questions");
                 answersTotal = document.getElementById("total-answers");
                 commentsTotal = document.getElementById("total-comments");
                 usersTotal = document.getElementById("total-users");
-
+                timeRange = document.getElementById("time-range");
+                
                 g1 = new JustGage({
                     id: "g1",
                     value: 0,
@@ -208,7 +218,6 @@
                     setTimeout((function(i) {
                         return function() {
                             var stepValue = Math.floor(value - value/Math.pow(2, i));
-                            console.log(i, stepValue)
                             container.innerHTML = formatNumber(stepValue);
                         }
                     })(i), i*stepDelay)
@@ -231,14 +240,12 @@
                 animateNumber(answersTotal, stats.answers.total)
                 animateNumber(commentsTotal, stats.comments.total)
                 animateNumber(usersTotal, stats.users.total)
-                //questionsTotal.innerHTML = formatNumber(stats.questions.total);
-                //answersTotal.innerHTML = formatNumber(stats.answers.total);
-                //commentsTotal.innerHTML = formatNumber(stats.comments.total);
-                //usersTotal.innerHTML = formatNumber(stats.users.total);
                 g1.refresh(stats.questions.lastHour);
                 g2.refresh(stats.answers.lastHour);
                 g3.refresh(stats.comments.lastHour);
                 g4.refresh(stats.users.lastHour);
+                var todate = new Date(stats.info.todate);
+                timeRange.innerHTML = "(" + (todate.getHours()-1) + ":" + todate.getMinutes() + " - " + todate.getHours() + ":" + todate.getMinutes() + ")";
             });
         </script>
         
