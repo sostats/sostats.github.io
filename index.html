@@ -155,12 +155,13 @@
                 answersTotal = document.getElementById("total-answers");
                 commentsTotal = document.getElementById("total-comments");
                 usersTotal = document.getElementById("total-users");
-                
+
                 g1 = new JustGage({
                     id: "g1",
                     value: 0,
                     min: 0,
                     max: 1000,
+                    counter: true,
                     title: "Questions",
                     label: "per hour"
                 });
@@ -170,6 +171,7 @@
                     value: 0,
                     min: 0,
                     max: 1000,
+                    counter: true,
                     title: "Answers",
                     label: "per hour"
                 });
@@ -179,6 +181,7 @@
                     value: 0,
                     min: 0,
                     max: 4000,
+                    counter: true,
                     title: "Comments",
                     label: "per hour"
                 });
@@ -188,13 +191,31 @@
                     value: 0,
                     min: 0,
                     max: 400,
+                    counter: true,
                     title: "Users",
-                    label: "per hour"
+                    label: "per hour",
                 });
             });
             
             function formatNumber(n) {
                 return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+            }
+            
+            function animateNumber(container, value) {
+                var steps = 10;
+                var stepDelay = 80;
+                for (var i = 1; i < steps; i++) {
+                    setTimeout((function(i) {
+                        return function() {
+                            var stepValue = Math.floor(value - value/Math.pow(2, i));
+                            console.log(i, stepValue)
+                            container.innerHTML = formatNumber(stepValue);
+                        }
+                    })(i), i*stepDelay)
+                }
+                setTimeout(function(){
+                    container.innerHTML = formatNumber(value);
+                }, steps * stepDelay);
             }
             
             NProgress.configure({ 
@@ -206,10 +227,14 @@
             firebaseRef.child("stats/latest").on("value", function(snapshot) {
                 NProgress.done();
                 var stats = snapshot.val();
-                questionsTotal.innerHTML = formatNumber(stats.questions.total);
-                answersTotal.innerHTML = formatNumber(stats.answers.total);
-                commentsTotal.innerHTML = formatNumber(stats.comments.total);
-                usersTotal.innerHTML = formatNumber(stats.users.total);
+                animateNumber(questionsTotal, stats.questions.total)
+                animateNumber(answersTotal, stats.answers.total)
+                animateNumber(commentsTotal, stats.comments.total)
+                animateNumber(usersTotal, stats.users.total)
+                //questionsTotal.innerHTML = formatNumber(stats.questions.total);
+                //answersTotal.innerHTML = formatNumber(stats.answers.total);
+                //commentsTotal.innerHTML = formatNumber(stats.comments.total);
+                //usersTotal.innerHTML = formatNumber(stats.users.total);
                 g1.refresh(stats.questions.lastHour);
                 g2.refresh(stats.answers.lastHour);
                 g3.refresh(stats.comments.lastHour);
