@@ -232,6 +232,9 @@
                 showSpinner: false 
             });
             NProgress.start();
+            function zeroPad(val) {
+                return ('0' + val).slice(-2)
+            }
             var firebaseRef = new Firebase("https://sostats.firebaseio.com/");
             firebaseRef.child("stats/latest").on("value", function(snapshot) {
                 NProgress.done();
@@ -245,7 +248,7 @@
                 g3.refresh(stats.comments.lastHour);
                 g4.refresh(stats.users.lastHour);
                 var todate = new Date(stats.info.todate);
-                timeRange.innerHTML = "(" + (todate.getHours()-1) + ":" + todate.getMinutes() + " - " + todate.getHours() + ":" + todate.getMinutes() + ")";
+                timeRange.innerHTML = "(" + (todate.getHours()-1) + ":" + zeroPad(todate.getMinutes()) + " - " + todate.getHours() + ":" + zeroPad(todate.getMinutes()) + ")";
             });
         </script>
         
