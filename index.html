@@ -233,6 +233,14 @@
                 }, steps * stepDelay);
             }
             
+            function showNumber(options) {
+                if (options.animate) {
+                    animateNumber(options.element, options.value);
+                } else {
+                    options.element.innerHTML = formatNumber(options.value);
+                }
+            }
+            
             NProgress.configure({ 
                 parent: '#main',
                 showSpinner: false 
@@ -241,18 +249,20 @@
             function zeroPad(val) {
                 return ('0' + val).slice(-2)
             }
+            var firstTime = true;
             var firebaseRef = new Firebase("https://sostats.firebaseio.com/");
             firebaseRef.child("stats/latest").on("value", function(snapshot) {
                 NProgress.done();
                 var stats = snapshot.val();
-                animateNumber(questionsTotal, stats.questions.total)
-                animateNumber(answersTotal, stats.answers.total)
-                animateNumber(commentsTotal, stats.comments.total)
-                animateNumber(usersTotal, stats.users.total)
+                showNumber({ element: questionsTotal, value: stats.questions.total, animate: firstTime });
+                showNumber({ element: answersTotal,   value: stats.answers.total,   animate: firstTime });
+                showNumber({ element: commentsTotal,  value: stats.comments.total,  animate: firstTime });
+                showNumber({ element: usersTotal,     value: stats.users.total,     animate: firstTime });
                 g1.refresh(stats.questions.lastHour);
                 g2.refresh(stats.answers.lastHour);
                 g3.refresh(stats.comments.lastHour);
                 g4.refresh(stats.users.lastHour);
+                firstTime = false;
                 var todate = new Date(stats.info.todate);
                 timeRange.innerHTML = "(" + (todate.getHours()-1) + ":" + zeroPad(todate.getMinutes()) + " - " + todate.getHours() + ":" + zeroPad(todate.getMinutes()) + ")";
             });
