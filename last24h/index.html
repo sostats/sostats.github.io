@@ -107,6 +107,10 @@
                 font-size: 12px;
                 fill: #eee;
             }
+            
+            .tooltip text {
+                fill: #444;            
+            }
 
             .axis {
               font-family: "Open Sans", verdana, arial, sans-serif;
@@ -213,6 +217,43 @@
                 return data;
             }
             
+                        function createTooltip(svg, width, height) {
+                width = width || 40;
+                height = height || 20;
+                var tooltipGroup = svg.append("g")
+                    .attr("class", "tooltip")				
+                    .style("opacity", 0);
+                var tooltipRect = tooltipGroup.append("rect")
+                    .attr("width", width)
+                    .attr("height", height)
+                tooltipGroup.append("rect")
+                    .attr("width", 8)
+                    .attr("height", 8)
+                    .attr("x", width/2 - 4)
+                    .attr("y", height - 4)
+                    .attr("transform", "rotate(45 " + width/2 + " " + height + ")")
+                var tooltipText = tooltipGroup.append("text")
+                    .attr("x", width/2)
+                    .attr("y", height/2)
+                    .attr("text-anchor", "middle")
+                    .attr("dominant-baseline", "central");
+                var tooltip = {
+                    move: function(x, y) {
+                        tooltipGroup.attr("transform",  "translate(" + (x - width/2) + "," + (y - height - 5) + ")");
+                        return tooltip;
+                    },
+                    visible: function(value) {
+                        tooltipGroup.style("opacity", value ? 1 : 0)
+                        return tooltip;
+                    },
+                    text: function(text) {
+                        tooltipText.text(text);
+                        return tooltip;
+                    }
+                }
+                return tooltip;
+            }
+            
             function createBarChart(options) {
                 var data = options.data;
                 var outerWidth = document.body.offsetWidth - 20; // possible scroll
@@ -299,24 +340,7 @@
                     .style("text-anchor", "middle")
                     .text(options.title);
                     
-                var tooltip = svg.append("g")	
-                    .attr("class", "tooltip")				
-                    .style("opacity", 0);
-                var tooltipRect = tooltip.append("rect")
-                    .attr("width", 40)
-                    .attr("height", 20)
-                tooltip.append("rect")
-                    .attr("width", 8)
-                    .attr("height", 8)
-                    .attr("x", 16)
-                    .attr("y", 16)
-                    .attr("transform", "rotate(45 20 20)")
-                var tooltipText = tooltip.append("text")
-                    .attr("x", 20)
-                    .attr("y", 10)
-                    .attr("fill", "#000")
-                    .attr("text-anchor", "middle")
-                    .attr("dominant-baseline", "central");
+                var tooltip = createTooltip(svg, 40);
                 
                 return {
                     options: options,
@@ -324,12 +348,12 @@
                         var bar = bars
                             .filter(function(_d) { return _d.ts.getTime() === d.ts.getTime(); })
                             .classed("hover", value);
-                        var tx = bar.attr("x") - (tooltipRect.attr("width") - bar.attr("width"))/2;
-                        var ty = (bar.attr("y") - tooltipRect.attr("height") - 5);
-                        tooltip	
-                            .style("opacity", value ? 1 : 0)
-                            .attr("transform",  "translate(" + tx + "," + ty + ")");
-                        tooltipText.text(bar.datum().count);
+                        var tx = + bar.attr("x") + bar.attr("width")/2;
+                        var ty = + bar.attr("y");
+                        tooltip
+                            .visible(value)
+                            .move(tx, ty)
+                            .text(bar.datum().count)
                     }
                 };
             }
