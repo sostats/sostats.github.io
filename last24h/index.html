@@ -124,7 +124,6 @@
               fill: none;
               stroke: #444;
               stroke-width: 1px;
-              shape-rendering: crispEdges;
             }
             
         </style>
@@ -217,7 +216,7 @@
                 return data;
             }
             
-                        function createTooltip(svg, width, height) {
+            function createTooltip(svg, width, height) {
                 width = width || 40;
                 height = height || 20;
                 var tooltipGroup = svg.append("g")
