@@ -1,5 +1,5 @@
 # sostats
-StackOverflow Statistics
+Stack Overflow Statistics
 
 http://sostats.github.io
 
