@@ -1,0 +1,48 @@
+.charts {
+    text-align: center;
+}
+
+.chart {
+    display: inline-block;
+}
+
+.chart svg {
+    overflow: visible;
+}
+
+.chart .title {
+    font-size: 18px;
+    font-weight: bold;
+    fill: #999;
+}
+
+.bar {
+  fill: #bcbbbb;
+}
+
+.bar.hover {
+  fill: #f48024;
+}
+
+.tooltip {
+    font-size: 12px;
+    fill: #eee;
+}
+
+.tooltip text {
+    fill: #444;            
+}
+
+.axis {
+  font-family: "Open Sans", verdana, arial, sans-serif;
+  font-size: 12px;
+  font-weight: 200;
+  fill: #444;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #444;
+  stroke-width: 1px;
+}
