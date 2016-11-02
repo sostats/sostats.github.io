@@ -264,7 +264,7 @@
                 g4.refresh(stats.users.lastHour);
                 firstTime = false;
                 var todate = new Date(stats.info.todate);
-                timeRange.innerHTML = "(" + (todate.getHours()-1) + ":" + zeroPad(todate.getMinutes()) + " - " + todate.getHours() + ":" + zeroPad(todate.getMinutes()) + ")";
+                timeRange.innerHTML = "(" + ((todate.getHours()-1+24)%24) + ":" + zeroPad(todate.getMinutes()) + " - " + todate.getHours() + ":" + zeroPad(todate.getMinutes()) + ")";
             });
         </script>
         
