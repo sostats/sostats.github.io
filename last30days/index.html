@@ -36,6 +36,12 @@
                 vertical-align: middle;
                 padding-left: 4px;
             }
+            #header nav {
+                display: inline-block;
+            }
+            #menu-icon {
+                display: none;
+            }
             .tabs {
                 display: inline-block;
                 vertical-align: middle;
@@ -71,6 +77,41 @@
                 padding: 1em;
                 text-align: right;
             }
+            
+            @media only screen and (max-width : 600px) {
+                nav {
+                    position: absolute;
+                    top: 0;
+                    right: 0;
+                    background: #fff;
+                }
+                
+                nav:hover .tabs {
+                    display: block;
+                }
+                
+                .tabs {
+                    border: 2px solid #eee;
+                    display: none;
+                }
+                
+                .tabs a {
+                    display: block;
+                }
+            
+                #menu-icon {
+                    display: block;
+                    width: 32px;
+                    height: 32px;
+                    margin-left: auto;
+                    background: url(../img/menu-icon.svg) center;
+                }
+
+                #main {
+                    margin-top: 32px;
+                }
+            }
+            
             #gauges {
                 text-align: center;
             }
@@ -93,11 +134,14 @@
     <body>
         <div id="header">
             <img src="../img/logo.svg" onerror="this.src='../img/logo.png'"></img>
-            <div class="tabs">
-                <a href="/">Dashboard</a>
-                <a href="/last24h">Last 24h</a>
-                <a href="/last30days" class="current">Last 30 days</a>
-            </div>
+            <nav>
+                <a href="#" id="menu-icon"></a>
+                <div class="tabs">
+                    <a href="/">Dashboard</a>
+                    <a href="/last24h">Last 24h</a>
+                    <a href="/last30days" class="current">Last 30 days</a>
+                </div>
+            </nav>
         </div>
         <div id="main">
             <div class="charts">
