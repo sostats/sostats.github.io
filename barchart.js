@@ -37,7 +37,7 @@ function createTooltip(svg, tooltipOptions) {
 
 function createBarChart(options) {
     var data = options.data;
-    var outerWidth = document.body.offsetWidth - 20; // possible scroll
+    var outerWidth = document.body.offsetWidth * 0.9 - 20; // possible scroll
     if (outerWidth > 800) {
         outerWidth /= 2;
     }
