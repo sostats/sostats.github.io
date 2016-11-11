@@ -1,0 +1,163 @@
+<!doctype html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <link rel="icon" type="image/png" href="/img/favicon16.png" sizes="16x16"/>
+        <link rel="icon" type="image/png" href="/img/favicon32.png" sizes="32x32"/>
+        <link rel="icon" type="image/png" href="/img/favicon64.png" sizes="64x64"/>
+        <link rel="stylesheet" href="/libs/nprogress.css"/>
+        <title>Stack Overflow Stats - {{ page.title }}</title>
+        <style>
+            html {
+                height: 100%;
+            }
+            body {
+                font-family: sans-serif;
+                margin: 0;
+                position: relative;
+                min-height: 100%;
+                padding-bottom: 2.8125em;
+                box-sizing: border-box;
+            }
+            a {
+                text-decoration: none;
+                color: #f48024;
+            }
+            #header {
+                border-bottom: 1px solid #eee;
+                background: #fff;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                z-index: 1000;
+            }
+            #header img {
+                vertical-align: middle;
+                padding-left: 4px;
+            }
+            #header nav {
+                display: inline-block;
+            }
+            #menu-icon {
+                display: none;
+            }
+            .tabs {
+                display: inline-block;
+                vertical-align: middle;
+                line-height: 40px
+            }
+            .tabs a {
+                display: inline-block;
+                line-height; inherit;
+                color: #848d95;
+                text-decoration: none;
+                padding: 0 10px;
+            }
+            .tabs a.current {
+                color: #f48024;
+                background-color: #eee;
+            }
+            .tabs a:hover {
+                background-color: #eee;
+            }
+            #main {
+                margin-top: 40px;
+                padding-top: 1px;
+                padding-left: 5%;
+                padding-right: 5%;
+            }
+            #footer {
+                position: absolute;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                border-top: 1px solid #eee;
+                font-size: 0.8125em;
+                padding: 1em;
+                text-align: right;
+            }
+            
+            @media only screen and (max-width : 600px) {
+                nav {
+                    position: absolute;
+                    top: 0;
+                    right: 0;
+                    background: #fff;
+                }
+                
+                nav:hover .tabs {
+                    display: block;
+                }
+                
+                .tabs {
+                    border: 2px solid #eee;
+                    display: none;
+                }
+                
+                .tabs a {
+                    display: block;
+                }
+            
+                #menu-icon {
+                    display: block;
+                    width: 32px;
+                    height: 32px;
+                    margin-left: auto;
+                    background: url(/img/menu-icon.svg) center;
+                }
+                
+                #main {
+                    margin-top: 32px;
+                }
+            }
+        </style>
+        {% if page.style %}
+        <style>
+        {% include {{page.style}} %}
+        </style>
+        {% endif %}
+    </head>
+    <body>
+        <div id="header">
+            <img src="/img/logo.svg" onerror="this.src='/img/logo.png'"></img>
+            <nav>
+                <a href="#" id="menu-icon"></a>
+                <div class="tabs">
+                    {% assign nav_pages = site.html_pages | sort: 'nav_order' %}
+                    {% for p in nav_pages %}
+                      {% if p.nav_order %}
+                          <a href="{{ p.url }}" {% if p.url == page.url %}class="current"{% endif %}>{{ p.title }}</a>
+                      {% endif %}
+                    {% endfor %}
+                </div>
+            </nav>
+        </div>
+        <div id="main">
+            {{ content }}
+        </div>
+        <div id="footer">
+            Created by <a href="http://stackoverflow.com/users/853558/lukasz-wiktor" target="_blank">Łukasz Wiktor</a>
+        </div>
+        <script>
+            (function(){
+                    var t,i,e,n=window,o=document,a=arguments,s="script",r=["config","track","identify","visit","push","call","trackForm","trackClick"],c=function(){var t,i=this;for(i._e=[],t=0;r.length>t;t++)(function(t){i[t]=function(){return i._e.push([t].concat(Array.prototype.slice.call(arguments,0))),i}})(r[t])};for(n._w=n._w||{},t=0;a.length>t;t++)n._w[a[t]]=n[a[t]]=n[a[t]]||new c;i=o.createElement(s),i.async=1,i.src="//static.woopra.com/js/w.js",e=o.getElementsByTagName(s)[0],e.parentNode.insertBefore(i,e)
+            })("woopra");
+
+            woopra.config({
+                domain: 'sostats.github.io'
+            });
+            woopra.track();
+        </script>
+        
+        <script type="text/javascript">
+            window.smartlook||(function(d) {
+            var o=smartlook=function(){ o.api.push(arguments)},h=d.getElementsByTagName('head')[0];
+            var c=d.createElement('script');o.api=new Array();c.async=true;c.type='text/javascript';
+            c.charset='utf-8';c.src='//rec.smartlook.com/recorder.js';h.appendChild(c);
+            })(document);
+            smartlook('init', '82f5bdb1a67f1175b7264e2ab7042c04d57167df');
+        </script>
+    </body>
+</html>

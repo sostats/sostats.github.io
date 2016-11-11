@@ -1,346 +1,153 @@
-<!doctype html>
-<html>
-    <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-        <link rel="icon" type="image/png" href="img/favicon16.png" sizes="16x16"/>
-        <link rel="icon" type="image/png" href="img/favicon32.png" sizes="32x32"/>
-        <link rel="icon" type="image/png" href="img/favicon64.png" sizes="64x64"/>
-        <link rel="stylesheet" href="libs/nprogress.css"/>
-        <title>Stack Overflow Stats - Dashboard</title>
-        <style>
-            html {
-                height: 100%;
-            }
-            body {
-                font-family: sans-serif;
-                margin: 0;
-                position: relative;
-                min-height: 100%;
-                padding-bottom: 2.8125em;
-                box-sizing: border-box;
-            }
-            a {
-                text-decoration: none;
-                color: #f48024;
-            }
-            #header {
-                border-bottom: 1px solid #eee;
-                background: #fff;
-                position: fixed;
-                top: 0;
-                left: 0;
-                right: 0;
-                z-index: 1000;
-            }
-            #header img {
-                vertical-align: middle;
-                padding-left: 4px;
-            }
-            #header nav {
-                display: inline-block;
-            }
-            #menu-icon {
-                display: none;
-            }
-            .tabs {
-                display: inline-block;
-                vertical-align: middle;
-                line-height: 40px
-            }
-            .tabs a {
-                display: inline-block;
-                line-height; inherit;
-                color: #848d95;
-                text-decoration: none;
-                padding: 0 10px;
-            }
-            .tabs a.current {
-                color: #f48024;
-                background-color: #eee;
-            }
-            .tabs a:hover {
-                background-color: #eee;
-            }
-            #main {
-                margin-top: 40px;
-                padding-top: 1px;
-                padding-left: 5%;
-                padding-right: 5%;
-            }
-            #footer {
-                position: absolute;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                border-top: 1px solid #eee;
-                font-size: 0.8125em;
-                padding: 1em;
-                text-align: right;
-            }
-            
-            @media only screen and (max-width : 600px) {
-                nav {
-                    position: absolute;
-                    top: 0;
-                    right: 0;
-                    background: #fff;
-                }
-                
-                nav:hover .tabs {
-                    display: block;
-                }
-                
-                .tabs {
-                    border: 2px solid #eee;
-                    display: none;
-                }
-                
-                .tabs a {
-                    display: block;
-                }
-            
-                #menu-icon {
-                    display: block;
-                    width: 32px;
-                    height: 32px;
-                    margin-left: auto;
-                    background: url(img/menu-icon.svg) center;
-                }
-                
-                #main {
-                    margin-top: 32px;
-                }
-            }
-            
-            #totals {
-                text-align: center;
-            }
-            #totals .panel h3 {
-                color: #999;
-            }
-            #totals .panel-group {
-                display: inline-block;
-            }
-            #totals .panel {
-                display: inline-block;
-                width: 300px;
-                height: 115px;
-                background-color: #fafafb;
-                border: 1px solid #e0e0e0;
-                margin: 1em;
-            }
-            .total-value {
-                font-size: 1.875em;
-                font-weight: bold;
-            }
-            #gauges {
-                text-align: center;
-            }
-            #gauges .legend {
-                font-size: 0.8125em;
-                margin-top: 1em;
-            }
-            .g-group {
-                display: inline-block;
-            }
-            #g1, #g2, #g3, #g4 {
-                width: 300px;
-                height: 200px;
-                display: inline-block;
-                margin: 1em;
-            }
-            #time-range {
-                color: #e0e0e0;
-                font-weight: normal;
-                cursor: default;
-            }
-            #time-range:hover {
-                color: #999;
-            }
-        </style>
-    </head>
-    <body>
-        <div id="header">
-            <img src="img/logo.svg" onerror="this.src='img/logo.png'"></img>
-            <nav>
-                <a href="#" id="menu-icon"></a>
-                <div class="tabs">
-                    <a href="/" class="current">Dashboard</a>
-                    <a href="/last24h">Last 24h</a>
-                    <a href="/last30days">Last 30 days</a>
-                </div>
-            </nav>
+---
+layout: default
+title: Dashboard
+style: dashboard.css
+nav_order: 1
+---
+<h2>Total</h2>
+<div id="totals">
+    <div class="panel-group">
+        <div class="panel">
+            <h3>Questions</h3>
+            <div id="total-questions" class="total-value">0</div>
         </div>
-        <div id="main">
-            <h2>Total</h2>
-            <div id="totals">
-                <div class="panel-group">
-                    <div class="panel">
-                        <h3>Questions</h3>
-                        <div id="total-questions" class="total-value">0</div>
-                    </div>
-                    <div class="panel">
-                        <h3>Answers</h3>
-                        <div id="total-answers" class="total-value">0</div>
-                    </div>
-                </div>
-                <div class="panel-group">
-                    <div class="panel">
-                        <h3>Comments</h3>
-                        <div id="total-comments" class="total-value">0</div>
-                    </div>
-                    <div class="panel">
-                        <h3>Users</h3>
-                        <div id="total-users" class="total-value">0</div>
-                    </div>
-                </div>
-            </div>
-            <h2>Last Hour <span id="time-range"></span></h2>
-            <div id="gauges">
-                <div class="g-group">
-                    <div id="g1"></div>
-                    <div id="g2"></div>
-                </div>
-                <div class="g-group">
-                    <div id="g3"></div>
-                    <div id="g4"></div>
-                </div>
-            </div>
+        <div class="panel">
+            <h3>Answers</h3>
+            <div id="total-answers" class="total-value">0</div>
         </div>
-        <div id="footer">
-            Created by <a href="http://stackoverflow.com/users/853558/lukasz-wiktor" target="_blank">Łukasz Wiktor</a>
+    </div>
+    <div class="panel-group">
+        <div class="panel">
+            <h3>Comments</h3>
+            <div id="total-comments" class="total-value">0</div>
         </div>
-        <script src="libs/raphael-2.1.4.min.js"></script>
-        <script src="libs/justgage.js"></script>
-        <script src="libs/firebase.js"></script>
-        <script src="libs/nprogress.js"></script>
-        <script>
-            var questionsTotal, answersTotal, commentsTotal, usersTotal;
-            var g1, g2, g3, g4;
-            var timeRange;
+        <div class="panel">
+            <h3>Users</h3>
+            <div id="total-users" class="total-value">0</div>
+        </div>
+    </div>
+</div>
+<h2>Last Hour <span id="time-range"></span></h2>
+<div id="gauges">
+    <div class="g-group">
+        <div id="g1"></div>
+        <div id="g2"></div>
+    </div>
+    <div class="g-group">
+        <div id="g3"></div>
+        <div id="g4"></div>
+    </div>
+</div>
 
-            document.addEventListener("DOMContentLoaded", function(event) {
-                questionsTotal = document.getElementById("total-questions");
-                answersTotal = document.getElementById("total-answers");
-                commentsTotal = document.getElementById("total-comments");
-                usersTotal = document.getElementById("total-users");
-                timeRange = document.getElementById("time-range");
-                
-                g1 = new JustGage({
-                    id: "g1",
-                    value: 0,
-                    min: 0,
-                    max: 1000,
-                    counter: true,
-                    title: "Questions",
-                    label: "per hour"
-                });
+<script src="libs/raphael-2.1.4.min.js"></script>
+<script src="libs/justgage.js"></script>
+<script src="libs/firebase.js"></script>
+<script src="libs/nprogress.js"></script>
 
-                g2 = new JustGage({
-                    id: "g2",
-                    value: 0,
-                    min: 0,
-                    max: 1000,
-                    counter: true,
-                    title: "Answers",
-                    label: "per hour"
-                });
+<script>
+    var questionsTotal, answersTotal, commentsTotal, usersTotal;
+    var g1, g2, g3, g4;
+    var timeRange;
 
-                g3 = new JustGage({
-                    id: "g3",
-                    value: 0,
-                    min: 0,
-                    max: 4000,
-                    counter: true,
-                    title: "Comments",
-                    label: "per hour"
-                });
-                
-                g4 = new JustGage({
-                    id: "g4",
-                    value: 0,
-                    min: 0,
-                    max: 400,
-                    counter: true,
-                    title: "New Users",
-                    label: "per hour",
-                });
-            });
-            
-            function formatNumber(n) {
-                return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-            }
-            
-            function animateNumber(container, value) {
-                var steps = 10;
-                var stepDelay = 80;
-                for (var i = 1; i < steps; i++) {
-                    setTimeout((function(i) {
-                        return function() {
-                            var stepValue = Math.floor(value - value/Math.pow(2, i));
-                            container.innerHTML = formatNumber(stepValue);
-                        }
-                    })(i), i*stepDelay)
-                }
-                setTimeout(function(){
-                    container.innerHTML = formatNumber(value);
-                }, steps * stepDelay);
-            }
-            
-            function showNumber(options) {
-                if (options.animate) {
-                    animateNumber(options.element, options.value);
-                } else {
-                    options.element.innerHTML = formatNumber(options.value);
-                }
-            }
-            
-            NProgress.configure({ 
-                parent: '#main',
-                showSpinner: false 
-            });
-            NProgress.start();
-            function zeroPad(val) {
-                return ('0' + val).slice(-2)
-            }
-            var firstTime = true;
-            var firebaseRef = new Firebase("https://sostats.firebaseio.com/");
-            firebaseRef.child("stats/latest").on("value", function(snapshot) {
-                NProgress.done();
-                var stats = snapshot.val();
-                showNumber({ element: questionsTotal, value: stats.questions.total, animate: firstTime });
-                showNumber({ element: answersTotal,   value: stats.answers.total,   animate: firstTime });
-                showNumber({ element: commentsTotal,  value: stats.comments.total,  animate: firstTime });
-                showNumber({ element: usersTotal,     value: stats.users.total,     animate: firstTime });
-                g1.refresh(stats.questions.lastHour);
-                g2.refresh(stats.answers.lastHour);
-                g3.refresh(stats.comments.lastHour);
-                g4.refresh(stats.users.lastHour);
-                firstTime = false;
-                var todate = new Date(stats.info.todate);
-                timeRange.innerHTML = "(" + ((todate.getHours()-1+24)%24) + ":" + zeroPad(todate.getMinutes()) + " - " + todate.getHours() + ":" + zeroPad(todate.getMinutes()) + ")";
-            });
-        </script>
+    document.addEventListener("DOMContentLoaded", function(event) {
+        questionsTotal = document.getElementById("total-questions");
+        answersTotal = document.getElementById("total-answers");
+        commentsTotal = document.getElementById("total-comments");
+        usersTotal = document.getElementById("total-users");
+        timeRange = document.getElementById("time-range");
         
-        <script>
-            (function(){
-                    var t,i,e,n=window,o=document,a=arguments,s="script",r=["config","track","identify","visit","push","call","trackForm","trackClick"],c=function(){var t,i=this;for(i._e=[],t=0;r.length>t;t++)(function(t){i[t]=function(){return i._e.push([t].concat(Array.prototype.slice.call(arguments,0))),i}})(r[t])};for(n._w=n._w||{},t=0;a.length>t;t++)n._w[a[t]]=n[a[t]]=n[a[t]]||new c;i=o.createElement(s),i.async=1,i.src="//static.woopra.com/js/w.js",e=o.getElementsByTagName(s)[0],e.parentNode.insertBefore(i,e)
-            })("woopra");
+        g1 = new JustGage({
+            id: "g1",
+            value: 0,
+            min: 0,
+            max: 1000,
+            counter: true,
+            title: "Questions",
+            label: "per hour"
+        });
 
-            woopra.config({
-                domain: 'sostats.github.io'
-            });
-            woopra.track();
-        </script>
+        g2 = new JustGage({
+            id: "g2",
+            value: 0,
+            min: 0,
+            max: 1000,
+            counter: true,
+            title: "Answers",
+            label: "per hour"
+        });
+
+        g3 = new JustGage({
+            id: "g3",
+            value: 0,
+            min: 0,
+            max: 4000,
+            counter: true,
+            title: "Comments",
+            label: "per hour"
+        });
         
-        <script type="text/javascript">
-            window.smartlook||(function(d) {
-            var o=smartlook=function(){ o.api.push(arguments)},h=d.getElementsByTagName('head')[0];
-            var c=d.createElement('script');o.api=new Array();c.async=true;c.type='text/javascript';
-            c.charset='utf-8';c.src='//rec.smartlook.com/recorder.js';h.appendChild(c);
-            })(document);
-            smartlook('init', '82f5bdb1a67f1175b7264e2ab7042c04d57167df');
-        </script>
-    </body>
-</html>
+        g4 = new JustGage({
+            id: "g4",
+            value: 0,
+            min: 0,
+            max: 400,
+            counter: true,
+            title: "New Users",
+            label: "per hour",
+        });
+    });
+    
+    function formatNumber(n) {
+        return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+    
+    function animateNumber(container, value) {
+        var steps = 10;
+        var stepDelay = 80;
+        for (var i = 1; i < steps; i++) {
+            setTimeout((function(i) {
+                return function() {
+                    var stepValue = Math.floor(value - value/Math.pow(2, i));
+                    container.innerHTML = formatNumber(stepValue);
+                }
+            })(i), i*stepDelay)
+        }
+        setTimeout(function(){
+            container.innerHTML = formatNumber(value);
+        }, steps * stepDelay);
+    }
+    
+    function showNumber(options) {
+        if (options.animate) {
+            animateNumber(options.element, options.value);
+        } else {
+            options.element.innerHTML = formatNumber(options.value);
+        }
+    }
+    
+    NProgress.configure({ 
+        parent: '#main',
+        showSpinner: false 
+    });
+    NProgress.start();
+    function zeroPad(val) {
+        return ('0' + val).slice(-2)
+    }
+    var firstTime = true;
+    var firebaseRef = new Firebase("https://sostats.firebaseio.com/");
+    firebaseRef.child("stats/latest").on("value", function(snapshot) {
+        NProgress.done();
+        var stats = snapshot.val();
+        showNumber({ element: questionsTotal, value: stats.questions.total, animate: firstTime });
+        showNumber({ element: answersTotal,   value: stats.answers.total,   animate: firstTime });
+        showNumber({ element: commentsTotal,  value: stats.comments.total,  animate: firstTime });
+        showNumber({ element: usersTotal,     value: stats.users.total,     animate: firstTime });
+        g1.refresh(stats.questions.lastHour);
+        g2.refresh(stats.answers.lastHour);
+        g3.refresh(stats.comments.lastHour);
+        g4.refresh(stats.users.lastHour);
+        firstTime = false;
+        var todate = new Date(stats.info.todate);
+        timeRange.innerHTML = "(" + ((todate.getHours()-1+24)%24) + ":" + zeroPad(todate.getMinutes()) + " - " + todate.getHours() + ":" + zeroPad(todate.getMinutes()) + ")";
+    });
+</script>

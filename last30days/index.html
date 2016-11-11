@@ -1,304 +1,140 @@
-<!doctype html>
-<html>
-    <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-        <link rel="icon" type="image/png" href="../img/favicon32.png">
-        <link rel="stylesheet" href="../libs/nprogress.css"/>
-        <link rel="stylesheet" href="../charts.css"/>
-        <title>Stack Overflow Stats - Last 30 days</title>
-        <style>
-            html {
-                height: 100%;
-            }
-            body {
-                font-family: sans-serif;
-                margin: 0;
-                position: relative;
-                min-height: 100%;
-                padding-bottom: 2.8125em;
-                box-sizing: border-box;
-            }
-            a {
-                text-decoration: none;
-                color: #f48024;
-            }
-            #header {
-                border-bottom: 1px solid #eee;
-                background: #fff;
-                position: fixed;
-                top: 0;
-                left: 0;
-                right: 0;
-                z-index: 1000;
-            }
-            #header img {
-                vertical-align: middle;
-                padding-left: 4px;
-            }
-            #header nav {
-                display: inline-block;
-            }
-            #menu-icon {
-                display: none;
-            }
-            .tabs {
-                display: inline-block;
-                vertical-align: middle;
-                line-height: 40px
-            }
-            .tabs a {
-                display: inline-block;
-                line-height; inherit;
-                color: #848d95;
-                text-decoration: none;
-                padding: 0 10px;
-            }
-            .tabs a.current {
-                color: #f48024;
-                background-color: #eee;
-            }
-            .tabs a:hover {
-                background-color: #eee;
-            }
-            #main {
-                margin-top: 40px;
-                padding-top: 1px; /* prevent margin collapsing */
-                padding-left: 5%;
-                padding-right: 5%;
-            }
-            #footer {
-                position: absolute;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                border-top: 1px solid #eee;
-                font-size: 0.8125em;
-                padding: 1em;
-                text-align: right;
-            }
-            
-            @media only screen and (max-width : 600px) {
-                nav {
-                    position: absolute;
-                    top: 0;
-                    right: 0;
-                    background: #fff;
-                }
-                
-                nav:hover .tabs {
-                    display: block;
-                }
-                
-                .tabs {
-                    border: 2px solid #eee;
-                    display: none;
-                }
-                
-                .tabs a {
-                    display: block;
-                }
-            
-                #menu-icon {
-                    display: block;
-                    width: 32px;
-                    height: 32px;
-                    margin-left: auto;
-                    background: url(../img/menu-icon.svg) center;
-                }
-
-                #main {
-                    margin-top: 32px;
-                }
-            }
-            
-            #gauges {
-                text-align: center;
-            }
-            #g-group {
-                display: inline-block;
-            }
-            #g1, #g2, #g3, #g4 {
-                width: 300px;
-                height: 200px;
-                display: inline-block;
-                margin: 1em;
-            }
-            
-            #main {
-                width: 90%;
-                min-height: 3px;
-            }            
-        </style>
-    </head>
-    <body>
-        <div id="header">
-            <img src="../img/logo.svg" onerror="this.src='../img/logo.png'"></img>
-            <nav>
-                <a href="#" id="menu-icon"></a>
-                <div class="tabs">
-                    <a href="/">Dashboard</a>
-                    <a href="/last24h">Last 24h</a>
-                    <a href="/last30days" class="current">Last 30 days</a>
-                </div>
-            </nav>
-        </div>
-        <div id="main">
-            <div class="charts">
-                <div id="questions" class="chart">
-                </div>
-                <div id="answers" class="chart">
-                </div>
-                <div id="comments" class="chart">
-                </div>
-                <div id="users" class="chart">
-                </div>
-            </div>
-        </div>
-        <div id="footer">
-            Created by <a href="http://stackoverflow.com/users/853558/lukasz-wiktor" target="_blank">Łukasz Wiktor</a>
-        </div>
-        <script src="../libs/d3.min.js" charset="utf-8"></script>
-        <script src="../libs/nprogress.js"></script>
-        <script src="../libs/firebase.js"></script>
-        <script src="../barchart.js"></script>
-        <script>
-            var q, a, c, u;
-            NProgress.configure({ 
-                parent: '#main',
-                showSpinner: false 
-            });
-            NProgress.start();
-            var reqCount = 4;
-            var firebaseRef = new Firebase("https://sostats.firebaseio.com/");
-            function mouseover(d, i) {
-                q.hover(d, true);
-                a.hover(d, true);
-                c.hover(d, true);
-                u.hover(d, true);
-            }
-            function mouseout(d, i) {
-                q.hover(d, false);
-                a.hover(d, false);
-                c.hover(d, false);
-                u.hover(d, false);
-            }
-            var timeFormat = d3.time.format("%b %e");
-            function tooltipText(d) {
-                return timeFormat(d.ts) + ": " + d.count;
-            }
-            function tickFormat(d) {
-                return timeFormat(d);
-            }
-            firebaseRef.child("stats/questions/daily").limitToLast(30).once("value", function(snapshot) {
-                if (!--reqCount) {
-                    NProgress.done();
-                }
-                q = createBarChart({
-                    containerId: "questions",
-                    data: transformData(snapshot),
-                    title: "Questions",
-                    tickFormat: tickFormat,
-                    tooltip: {
-                        width: 80,
-                        text: tooltipText
-                    },
-                    mouseover: mouseover,
-                    mouseout: mouseout
-                });
-            });
-            firebaseRef.child("stats/answers/daily").limitToLast(30).once("value", function(snapshot) {
-                if (!--reqCount) {
-                    NProgress.done();
-                }
-                a = createBarChart({
-                    containerId: "answers",
-                    data: transformData(snapshot),
-                    title: "Answers",
-                    tickFormat: tickFormat,
-                    tooltip: {
-                        width: 80,
-                        text: tooltipText
-                    },
-                    mouseover: mouseover,
-                    mouseout: mouseout
-                });
-            });
-            firebaseRef.child("stats/comments/daily").limitToLast(30).once("value", function(snapshot) {
-                if (!--reqCount) {
-                    NProgress.done();
-                }
-                c = createBarChart({
-                    containerId: "comments",
-                    data: transformData(snapshot),
-                    title: "Comments",
-                    tickFormat: tickFormat,
-                    tooltip: {
-                        width: 80,
-                        text: tooltipText
-                    },
-                    mouseover: mouseover,
-                    mouseout: mouseout
-                });
-            });
-            firebaseRef.child("stats/users/daily").limitToLast(30).once("value", function(snapshot) {
-                if (!--reqCount) {
-                    NProgress.done();
-                }
-                u = createBarChart({
-                    containerId: "users",
-                    data: transformData(snapshot),
-                    title: "New Users",
-                    tickFormat: tickFormat,
-                    tooltip: {
-                        width: 80,
-                        text: tooltipText
-                    },
-                    mouseover: mouseover,
-                    mouseout: mouseout
-                });
-            });
-            
-            function transformData(snapshot) {
-                var data = [];
-                snapshot.forEach(function(child) {
-                    data.push({
-                        ts: new Date(child.key()),
-                        count: child.val().count
-                    })
-                });
-                return data;
-            }
-            
-            var windowWidth = window.innerWidth;
-            window.addEventListener('resize', function() {
-                if (windowWidth === window.innerWidth) {
-                    return "skip resize";
-                }
-                q = createBarChart(q.options);
-                a = createBarChart(a.options);
-                c = createBarChart(c.options);
-                u = createBarChart(u.options);
-                windowWidth = window.innerWidth;
+---
+layout: default
+title: Last 30 days
+style: charts.css
+nav_order: 3
+---
+<div class="charts">
+    <div id="questions" class="chart">
+    </div>
+    <div id="answers" class="chart">
+    </div>
+    <div id="comments" class="chart">
+    </div>
+    <div id="users" class="chart">
+    </div>
+</div>
+<script src="../libs/d3.min.js" charset="utf-8"></script>
+<script src="../libs/nprogress.js"></script>
+<script src="../libs/firebase.js"></script>
+<script src="../barchart.js"></script>
+<script>
+    var q, a, c, u;
+    NProgress.configure({ 
+        parent: '#main',
+        showSpinner: false 
+    });
+    NProgress.start();
+    var reqCount = 4;
+    var firebaseRef = new Firebase("https://sostats.firebaseio.com/");
+    function mouseover(d, i) {
+        q.hover(d, true);
+        a.hover(d, true);
+        c.hover(d, true);
+        u.hover(d, true);
+    }
+    function mouseout(d, i) {
+        q.hover(d, false);
+        a.hover(d, false);
+        c.hover(d, false);
+        u.hover(d, false);
+    }
+    var timeFormat = d3.time.format("%b %e");
+    function tooltipText(d) {
+        return timeFormat(d.ts) + ": " + d.count;
+    }
+    function tickFormat(d) {
+        return timeFormat(d);
+    }
+    firebaseRef.child("stats/questions/daily").limitToLast(30).once("value", function(snapshot) {
+        if (!--reqCount) {
+            NProgress.done();
+        }
+        q = createBarChart({
+            containerId: "questions",
+            data: transformData(snapshot),
+            title: "Questions",
+            tickFormat: tickFormat,
+            tooltip: {
+                width: 80,
+                text: tooltipText
+            },
+            mouseover: mouseover,
+            mouseout: mouseout
+        });
+    });
+    firebaseRef.child("stats/answers/daily").limitToLast(30).once("value", function(snapshot) {
+        if (!--reqCount) {
+            NProgress.done();
+        }
+        a = createBarChart({
+            containerId: "answers",
+            data: transformData(snapshot),
+            title: "Answers",
+            tickFormat: tickFormat,
+            tooltip: {
+                width: 80,
+                text: tooltipText
+            },
+            mouseover: mouseover,
+            mouseout: mouseout
+        });
+    });
+    firebaseRef.child("stats/comments/daily").limitToLast(30).once("value", function(snapshot) {
+        if (!--reqCount) {
+            NProgress.done();
+        }
+        c = createBarChart({
+            containerId: "comments",
+            data: transformData(snapshot),
+            title: "Comments",
+            tickFormat: tickFormat,
+            tooltip: {
+                width: 80,
+                text: tooltipText
+            },
+            mouseover: mouseover,
+            mouseout: mouseout
+        });
+    });
+    firebaseRef.child("stats/users/daily").limitToLast(30).once("value", function(snapshot) {
+        if (!--reqCount) {
+            NProgress.done();
+        }
+        u = createBarChart({
+            containerId: "users",
+            data: transformData(snapshot),
+            title: "New Users",
+            tickFormat: tickFormat,
+            tooltip: {
+                width: 80,
+                text: tooltipText
+            },
+            mouseover: mouseover,
+            mouseout: mouseout
+        });
+    });
+    
+    function transformData(snapshot) {
+        var data = [];
+        snapshot.forEach(function(child) {
+            data.push({
+                ts: new Date(child.key()),
+                count: child.val().count
             })
-        </script>
-        <script>
-            (function(){
-                    var t,i,e,n=window,o=document,a=arguments,s="script",r=["config","track","identify","visit","push","call","trackForm","trackClick"],c=function(){var t,i=this;for(i._e=[],t=0;r.length>t;t++)(function(t){i[t]=function(){return i._e.push([t].concat(Array.prototype.slice.call(arguments,0))),i}})(r[t])};for(n._w=n._w||{},t=0;a.length>t;t++)n._w[a[t]]=n[a[t]]=n[a[t]]||new c;i=o.createElement(s),i.async=1,i.src="//static.woopra.com/js/w.js",e=o.getElementsByTagName(s)[0],e.parentNode.insertBefore(i,e)
-            })("woopra");
-
-            woopra.config({
-                domain: 'sostats.github.io'
-            });
-            woopra.track();
-        </script>
-        <script type="text/javascript">
-            window.smartlook||(function(d) {
-            var o=smartlook=function(){ o.api.push(arguments)},h=d.getElementsByTagName('head')[0];
-            var c=d.createElement('script');o.api=new Array();c.async=true;c.type='text/javascript';
-            c.charset='utf-8';c.src='//rec.smartlook.com/recorder.js';h.appendChild(c);
-            })(document);
-            smartlook('init', '82f5bdb1a67f1175b7264e2ab7042c04d57167df');
-        </script>
-    </body>
-</html>
+        });
+        return data;
+    }
+    
+    var windowWidth = window.innerWidth;
+    window.addEventListener('resize', function() {
+        if (windowWidth === window.innerWidth) {
+            return "skip resize";
+        }
+        q = createBarChart(q.options);
+        a = createBarChart(a.options);
+        c = createBarChart(c.options);
+        u = createBarChart(u.options);
+        windowWidth = window.innerWidth;
+    })
+</script>
